@@ -1,6 +1,8 @@
 package service
 
 import (
+	"bytes"
+	"encoding/gob"
 	"log"
 	"time"
 
@@ -64,6 +66,16 @@ func (s *restServiceType) Get(key string) (interface{}, error) {
 	return nil, nil
 }
 
+func getBytes(val interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(val)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
 func (s *restServiceType) Put(entry *cache.CacheEntry) error {
 	var err error
 
@@ -82,9 +94,11 @@ func (s *restServiceType) Put(entry *cache.CacheEntry) error {
 
 	// put on 2nd level cache (if any)
 	if s.dbCache != nil {
+		var byteVal []byte
+		byteVal, err = getBytes(entry.Value)
 		cacheEntry := cache.DBCacheEntry{
 			Key:   entry.Key,
-			Value: entry.Value.([]byte),
+			Value: byteVal,
 			TTL:   duration,
 		}
 		err = s.dbCache.Put(cacheEntry)

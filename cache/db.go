@@ -5,6 +5,11 @@ import (
 	"log"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
+
+	//_ "github.com/mattn/go-oci8"
+
 	"github.com/pilillo/igovium/commons"
 	"xorm.io/xorm"
 	"xorm.io/xorm/caches"
@@ -42,6 +47,7 @@ func (c *dbCacheType) Init(cfg *commons.DBCacheConfig) error {
 	if err != nil {
 		return err
 	}
+
 	// add local LRU cache if necessary
 	if cfg.MaxLocalCacheElementSize > 0 {
 		c.engine.SetDefaultCacher(NewInMemoryCache(cfg.MaxLocalCacheElementSize))

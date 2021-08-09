@@ -9,6 +9,7 @@ require (
 	github.com/buraksezer/olric v0.3.11
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-co-op/gocron v1.6.2
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -18,6 +19,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/memberlist v0.2.4 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/lib/pq v1.10.2
 	github.com/miekg/dns v1.1.43 // indirect
 	github.com/prometheus/client_golang v1.11.0
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect

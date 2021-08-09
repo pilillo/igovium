@@ -1,7 +1,7 @@
 port: 9988
 dm-cache:
   mode: lan
-#db-cache:
-#  driver-name: mysql
-#  data-source-name: mysql
-#  local-cache-size: 0
+db-cache:
+  driver-name: postgres
+  data-source-name: "host=localhost port=5432 user=user password=secret dbname=user sslmode=disable"
+  local-cache-size: 0
