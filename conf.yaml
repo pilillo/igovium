@@ -1,0 +1,7 @@
+port: 9988
+dm-cache:
+  mode: lan
+#db-cache:
+#  driver-name: mysql
+#  data-source-name: mysql
+#  local-cache-size: 0
