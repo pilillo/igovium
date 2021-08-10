@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
 
 	//_ "github.com/mattn/go-oci8"
 
@@ -68,8 +69,10 @@ func (c *dbCacheType) Get(key string) (*DBCacheEntry, error) {
 		return nil, err
 	}
 	if !has {
+		cachemiss.With(prometheus.Labels{"cache": "db"}).Inc()
 		return nil, nil
 	}
+	cachehit.With(prometheus.Labels{"cache": "db"}).Inc()
 	return &cacheEntry, nil
 }
 

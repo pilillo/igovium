@@ -11,6 +11,7 @@ import (
 	"github.com/buraksezer/olric/config"
 	"github.com/go-co-op/gocron"
 	"github.com/pilillo/igovium/commons"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type dmCacheType struct {
@@ -83,6 +84,10 @@ func (c *dmCacheType) Get(key string) (interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to call Get: %v", err)
 	}
+	if val != nil {
+		cachehit.With(prometheus.Labels{"cache": "dm"}).Inc()
+	}
+	cachemiss.With(prometheus.Labels{"cache": "dm"}).Inc()
 	return val, nil
 }
 

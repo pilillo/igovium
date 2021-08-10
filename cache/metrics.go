@@ -1,23 +1,31 @@
 package cache
 
+import (
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
+
 var (
-/*
-	cpuTemp = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "cpu_temperature_celsius",
-		Help: "Current temperature of the CPU.",
-	})
-	hdFailures = prometheus.NewCounterVec(
+	//cachehit = prometheus.NewCounterVec(
+	cachehit = promauto.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "hd_errors_total",
-			Help: "Number of hard-disk errors.",
+			Name: "cache_hit_total",
+			Help: "Number of cache hits.",
 		},
-		[]string{"device"},
+		[]string{"cache"},
 	)
-*/
+	//cachemiss = prometheus.NewCounterVec(
+	cachemiss = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "cache_miss_total",
+			Help: "Number of cache miss.",
+		},
+		[]string{"cache"},
+	)
 )
 
 func init() {
 	// Metrics have to be registered to be exposed:
-	//prometheus.MustRegister(cpuTemp)
-	//prometheus.MustRegister(hdFailures)
+	//prometheus.MustRegister(cachehit)
+	//prometheus.MustRegister(cachemiss)
 }
