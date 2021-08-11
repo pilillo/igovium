@@ -7,11 +7,11 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
+	"github.com/pilillo/igovium/utils"
 	"github.com/prometheus/client_golang/prometheus"
 
 	//_ "github.com/mattn/go-oci8"
 
-	"github.com/pilillo/igovium/commons"
 	"xorm.io/xorm"
 	"xorm.io/xorm/caches"
 )
@@ -42,7 +42,7 @@ func NewInMemoryCache(maxElementSize int) *caches.LRUCacher {
 	return cacher
 }
 
-func (c *dbCacheType) Init(cfg *commons.DBCacheConfig) error {
+func (c *dbCacheType) Init(cfg *utils.DBCacheConfig) error {
 	var err error
 	c.engine, err = xorm.NewEngine(cfg.DriverName, cfg.DataSourceName)
 	if err != nil {

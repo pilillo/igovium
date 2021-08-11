@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package cache;
+option go_package = "github.com/pilillo/igovium/service/cachepb";
+
+message PutRequest {
+	string key = 1;
+    bytes value = 2;
+    string ttl = 3;
+}
+
+message Empty {
+
+}
+
+
+message DeleteRequest {
+	string key = 1;
+}
+
+
+message GetRequest {
+	string key = 1;
+}
+
+message GetResponse {
+	bytes value = 1;
+}
+
+service CacheService {
+	rpc Put(PutRequest) returns (Empty) {};
+    rpc Delete(DeleteRequest) returns (Empty) {};
+    rpc Get(GetRequest) returns (GetResponse) {};
+}

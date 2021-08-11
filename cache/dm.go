@@ -10,7 +10,7 @@ import (
 	"github.com/buraksezer/olric"
 	"github.com/buraksezer/olric/config"
 	"github.com/go-co-op/gocron"
-	"github.com/pilillo/igovium/commons"
+	"github.com/pilillo/igovium/utils"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -20,6 +20,7 @@ type dmCacheType struct {
 }
 
 const (
+	// todo: add the concept of namespace to handle multiple maps (multi-tenancy/teams)
 	globalMap = "global"
 )
 
@@ -27,7 +28,7 @@ func NewDMCache() DMCache {
 	return &dmCacheType{}
 }
 
-func (c *dmCacheType) Init(cfg *commons.DMCacheConfig) error {
+func (c *dmCacheType) Init(cfg *utils.DMCacheConfig) error {
 	var err error
 	conf := config.New(cfg.Mode)
 

@@ -2,6 +2,10 @@
 
 Multi-level caching service in Go.
 
+Uses the following libraries:
+* [Olric](https://github.com/buraksezer/olric) as distributed in-memory cache (L1)
+* [XORM](https://gitea.com/xorm/xorm) as ORM in Go targeting multiple DBs (L2)
+
 ## Example
 
 ### Start a Postgres instance
@@ -10,12 +14,32 @@ Multi-level caching service in Go.
 docker run --rm --name some-postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=user -p 5432:5432 postgres
 ```
 
+### Example configuration (REST+gRPC server)
+
 ```yaml
-port: 9988
+rest:
+  port: 9988
+grpc:
+  port: 50051
 dm-cache:
   mode: lan
 db-cache:
   driver-name: postgres
   data-source-name: "host=localhost port=5432 user=user password=secret dbname=user sslmode=disable"
   local-cache-size: 0
+```
+
+### Run the service
+
+```bash
+❯ ./igovium --config conf.yaml
+```
+
+### Run the grpc client example
+Please find an example gRPC client [here](examples/grpc_client/client.go).
+
+```bash
+❯ ./examples/grpc_client/grpc_client
+2021/08/11 16:57:55 put response: 
+2021/08/11 16:57:55 get response: value:"\x08\n\x00\x05value"
 ```
