@@ -35,6 +35,26 @@ db-cache:
 ❯ ./igovium --config conf.yaml
 ```
 
+### REST API example
+
+PUT on `http://localhost:9988`:
+```json
+{
+    "key":"mykey",
+    "value": {"myvalue":1},
+    "ttl" : "1h"
+}
+```
+
+Returns 200 OK and the json payload.
+
+GET on `http://localhost:9988/mykey`:
+```json
+{
+    "myvalue": 1
+}
+```
+
 ### Run the grpc client example
 Please find an example gRPC client [here](examples/grpc_client/client.go).
 
