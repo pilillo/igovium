@@ -36,9 +36,17 @@ type DMCacheConfig struct {
 }
 
 type DBCacheConfig struct {
-	DriverName               string `yaml:"driver-name,omitempty"`
-	DataSourceName           string `yaml:"data-source-name,omitempty"`
-	MaxLocalCacheElementSize int    `yaml:"local-cache-size,omitempty"`
+	DriverName               string            `yaml:"driver-name,omitempty"`
+	DataSourceName           string            `yaml:"data-source-name,omitempty"`
+	MaxLocalCacheElementSize int               `yaml:"local-cache-size,omitempty"`
+	Historicize              HistoricizeConfig `yaml:"historicize,omitempty"`
+}
+
+type HistoricizeConfig struct {
+	// Cron schedule to trigger the historization process for
+	Schedule string `yaml:"schedule,omitempty"`
+	// Target Bucket
+	Bucket string `yaml:"bucket,omitempty"`
 }
 
 func LoadCfg() *Config {

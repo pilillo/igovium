@@ -22,14 +22,18 @@ type dbCacheType struct {
 
 type DBCacheEntry struct {
 	// by default, String is corresponding to varchar(255)
-	Key       string    `xorm:"varchar(255) pk not null unique 'key'"`
-	CreatedAt time.Time `xorm:"created"`
-	UpdatedAt time.Time `xorm:"updated"`
+	Key string `xorm:"varchar(255) pk not null unique 'key'"`
+	// as time
+	//CreatedAt time.Time `xorm:"created"`
+	//UpdatedAt time.Time `xorm:"updated"`
+	// as local unix timestamps
+	CreatedAt int64 `xorm:"created"`
+	UpdatedAt int64 `xorm:"updated"`
 	Value     []byte
 	// shall we need to look/index value, we can deserialize it and add a custom type
 	// see https://github.com/go-xorm/tests/blob/master/testCustomTypes.go
-	TTL time.Duration
-	// `xorm:"-"`
+	// as delta in nanoseconds
+	TTL time.Duration `xorm:"'ttl'"`
 }
 
 func NewDBCache() DBCache {
