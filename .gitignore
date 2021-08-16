@@ -1,2 +1,4 @@
 .vscode
 igovium
+*.parquet
+*.ipynb

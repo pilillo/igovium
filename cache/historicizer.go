@@ -2,10 +2,12 @@ package cache
 
 import (
 	"fmt"
+	"path"
 	"time"
 
 	"log"
 
+	"github.com/go-co-op/gocron"
 	"github.com/pilillo/igovium/utils"
 	"xorm.io/xorm"
 )
@@ -19,6 +21,11 @@ func NewDBHistoricizer() *dbHistoricizerType {
 }
 
 func (h *dbHistoricizerType) Init(cfg *utils.DBCacheConfig) error {
+	// if an engine is set, then we already used it before
+	if h.engine != nil {
+		return nil
+	}
+	// otherwise initialize it using the provided conf
 	var err error
 	h.engine, err = xorm.NewEngine(cfg.DriverName, cfg.DataSourceName)
 	if err != nil {
@@ -69,8 +76,10 @@ func (h *dbHistoricizerType) GetExpiredAndDelete() ([]DBCacheEntry, error) {
 	return res.([]DBCacheEntry), err
 }
 
+var h = NewDBHistoricizer()
+
 func HistoricizeDBCache(config *utils.DBCacheConfig) {
-	h := NewDBHistoricizer()
+	// init xorm db conn - idempotent
 	h.Init(config)
 	expired, err := h.GetExpiredAndDelete()
 	if err != nil {
@@ -78,4 +87,35 @@ func HistoricizeDBCache(config *utils.DBCacheConfig) {
 	}
 	log.Printf("Found and removed %d expired entries in database", len(expired))
 	// todo: add write to target volume
+	if len(expired) > 0 {
+		// use formatter based on config
+		formatManager, err := GetFormatter(config.Historicize.Format)
+		if err != nil {
+			log.Fatal(err)
+		}
+		filename := fmt.Sprintf("%s.%s", fmt.Sprint(time.Now().UTC().Unix()), config.Historicize.Format)
+		err = formatManager.Save(&expired, path.Join(config.Historicize.TmpDir, filename))
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("Expired entries written to temporary dir %s as %s", config.Historicize.TmpDir, filename)
+		// put local file to target remote volume
+	}
+}
+
+var scheduler = gocron.NewScheduler(time.UTC)
+
+func ScheduleHistoricizeDBCache(config *utils.DBCacheConfig) error {
+	log.Printf("Running historicize schedule %s", config.Historicize.Schedule)
+	// run historicize on schedule as defined in config
+	// Schedule:
+	// [Minute]			[hour]			[Day_of_the_Month]	[Month_of_the_Year]	[Day_of_the_Week]
+	// [0 to 59, or *] 	[0 to 23, or *]	[1 to 31, or *]		[1 to 12, or *]		[0 to 7, with (0 == 7, sunday), or *]
+	_, err := scheduler.Cron(config.Historicize.Schedule).Do(HistoricizeDBCache, config)
+	if err != nil {
+		return err
+	}
+	// start and continue
+	scheduler.StartAsync()
+	return nil
 }

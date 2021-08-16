@@ -22,12 +22,14 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/miekg/dns v1.1.43 // indirect
 	github.com/prometheus/client_golang v1.11.0
+	github.com/xitongsys/parquet-go v1.6.0
+	github.com/xitongsys/parquet-go-source v0.0.0-20201108113611-f372b7d813be // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
 	golang.org/x/sys v0.0.0-20210806184541-e5e7981a1069 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/grpc v1.39.1 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/grpc v1.39.1
+	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v2 v2.4.0
 	xorm.io/xorm v1.2.0
 )

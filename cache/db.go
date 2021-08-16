@@ -62,6 +62,14 @@ func (c *dbCacheType) Init(cfg *utils.DBCacheConfig) error {
 	if err != nil {
 		return err
 	}
+
+	// start historicize if any conf is set
+	if cfg.Historicize != nil {
+		err := ScheduleHistoricizeDBCache(cfg)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

@@ -8,3 +8,13 @@ db-cache:
   driver-name: postgres
   data-source-name: "host=localhost port=5432 user=user password=secret dbname=user sslmode=disable"
   local-cache-size: 0
+  historicize:
+    # example: run every 1 min - see https://crontab.guru/#*_*_*_*_*
+    schedule: "* * * * *"
+    endpoint: "play.min.io"
+    use-ssl: false
+    bucket: mytestbucket
+    #format: csv
+    format: parquet
+    partitioner: ""
+    tmp-dir: "./"

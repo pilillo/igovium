@@ -2,6 +2,11 @@
 
 Multi-level caching service in Go.
 
+Specifically: 
+* Distributed in-memory cache (L1)
+* DB-based cache (L2)
+* Long term historization on external volumes (L3)
+  
 Uses the following libraries:
 * [Olric](https://github.com/buraksezer/olric) as distributed in-memory cache (L1)
 * [XORM](https://gitea.com/xorm/xorm) as ORM in Go targeting multiple DBs (L2)
@@ -27,6 +32,15 @@ db-cache:
   driver-name: postgres
   data-source-name: "host=localhost port=5432 user=user password=secret dbname=user sslmode=disable"
   local-cache-size: 0
+  historicize:
+    # example: run every 1 min - see https://crontab.guru/#*_*_*_*_*
+    schedule: "* * * * *"
+    endpoint: "play.min.io"
+    use-ssl: false
+    bucket: mytestbucket
+    format: csv
+    partitioner: ""
+    tmp-dir: "./"
 ```
 
 ### Run the service

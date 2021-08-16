@@ -36,17 +36,25 @@ type DMCacheConfig struct {
 }
 
 type DBCacheConfig struct {
-	DriverName               string            `yaml:"driver-name,omitempty"`
-	DataSourceName           string            `yaml:"data-source-name,omitempty"`
-	MaxLocalCacheElementSize int               `yaml:"local-cache-size,omitempty"`
-	Historicize              HistoricizeConfig `yaml:"historicize,omitempty"`
+	DriverName               string             `yaml:"driver-name,omitempty"`
+	DataSourceName           string             `yaml:"data-source-name,omitempty"`
+	MaxLocalCacheElementSize int                `yaml:"local-cache-size,omitempty"`
+	Historicize              *HistoricizeConfig `yaml:"historicize,omitempty"`
 }
 
 type HistoricizeConfig struct {
 	// Cron schedule to trigger the historization process for
 	Schedule string `yaml:"schedule,omitempty"`
+	// Endpoint of target distributed volume (e.g. s3)
+	Endpoint string `yaml:"endpoint,omitempty"`
+	// whether to use a secure connection (https)
+	UseSSL bool `yaml:"use-ssl,omitempty"`
 	// Target Bucket
 	Bucket string `yaml:"bucket,omitempty"`
+	// Output file format
+	Format string `yaml:"format,omitempty"`
+	// Path to temporary output file
+	TmpDir string `yaml:"tmp-dir,omitempty"`
 }
 
 func LoadCfg() *Config {
