@@ -3,6 +3,7 @@ rest:
 grpc:
   port: 50051
 dm-cache:
+  type: olric
   mode: lan
 db-cache:
   driver-name: postgres

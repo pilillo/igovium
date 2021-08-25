@@ -14,7 +14,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type dmCacheType struct {
+type olricDMCacheType struct {
 	instance *olric.Olric
 	cache    *olric.DMap
 }
@@ -24,11 +24,11 @@ const (
 	globalMap = "global"
 )
 
-func NewDMCache() DMCache {
-	return &dmCacheType{}
+func NewOlricDMCache() DMCache {
+	return &olricDMCacheType{}
 }
 
-func (c *dmCacheType) Init(cfg *utils.DMCacheConfig) error {
+func (c *olricDMCacheType) Init(cfg *utils.DMCacheConfig) error {
 	var err error
 	conf := config.New(cfg.Mode)
 
@@ -61,7 +61,7 @@ func (c *dmCacheType) Init(cfg *utils.DMCacheConfig) error {
 	return nil
 }
 
-func (c *dmCacheType) ScheduleStats() error {
+func (c *olricDMCacheType) ScheduleStats() error {
 	s := gocron.NewScheduler(time.UTC)
 
 	s.Every(1).Seconds().Do(func() {
@@ -80,7 +80,7 @@ func (c *dmCacheType) ScheduleStats() error {
 	return nil
 }
 
-func (c *dmCacheType) Get(key string) (interface{}, error) {
+func (c *olricDMCacheType) Get(key string) (interface{}, error) {
 	val, err := c.cache.Get(key)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to call Get: %v", err)
@@ -92,7 +92,7 @@ func (c *dmCacheType) Get(key string) (interface{}, error) {
 	return val, nil
 }
 
-func (c *dmCacheType) Put(key string, value interface{}, ttl time.Duration) error {
+func (c *olricDMCacheType) Put(key string, value interface{}, ttl time.Duration) error {
 	err := c.cache.PutEx(key, value, ttl)
 	//err := c.cache.Put(key, value)
 	if err != nil {
@@ -101,7 +101,7 @@ func (c *dmCacheType) Put(key string, value interface{}, ttl time.Duration) erro
 	return nil
 }
 
-func (c *dmCacheType) Delete(key string) error {
+func (c *olricDMCacheType) Delete(key string) error {
 	err := c.cache.Delete(key)
 	if err != nil {
 		return fmt.Errorf("Failed to Delete %s on %s: %v", key, globalMap, err)
@@ -109,7 +109,7 @@ func (c *dmCacheType) Delete(key string) error {
 	return nil
 }
 
-func (c *dmCacheType) Shutdown() error {
+func (c *olricDMCacheType) Shutdown() error {
 	// leave the cluster
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err := c.instance.Shutdown(ctx)

@@ -9,8 +9,8 @@ require (
 	github.com/buraksezer/olric v0.3.11
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-co-op/gocron v1.6.2
+	github.com/go-redis/redis/v8 v8.11.3
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect

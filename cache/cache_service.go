@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -34,19 +35,20 @@ func (s *cacheServiceType) Init(cfg *utils.Config) error {
 	if s.initialized {
 		return nil
 	}
-
+	var err error
 	if cfg.DMCacheConfig != nil {
-		s.dmCache = NewDMCache()
-		err := s.dmCache.Init(cfg.DMCacheConfig)
-		if err != nil {
+		//s.dmCache = NewOlricDMCache()
+		if s.dmCache, err = NewDMCacheFromConfig(cfg.DMCacheConfig); err != nil {
+			return fmt.Errorf("Error creating DMCache: %v", err)
+		}
+		if err := s.dmCache.Init(cfg.DMCacheConfig); err != nil {
 			return err
 		}
 	}
 
 	if cfg.DBCacheConfig != nil {
 		s.dbCache = NewDBCache()
-		err := s.dbCache.Init(cfg.DBCacheConfig)
-		if err != nil {
+		if err := s.dbCache.Init(cfg.DBCacheConfig); err != nil {
 			return err
 		}
 	}
@@ -94,8 +96,7 @@ func (s *cacheServiceType) Put(entry *CacheEntry) error {
 
 	// put on 1st level cache (if any)
 	if s.dmCache != nil {
-		err = s.dmCache.Put(entry.Key, entry.Value, duration)
-		if err != nil {
+		if err = s.dmCache.Put(entry.Key, entry.Value, duration); err != nil {
 			return err
 		}
 	}
@@ -119,15 +120,13 @@ func (s *cacheServiceType) Delete(key string) error {
 	var err error
 	// del on 1st level cache (if any)
 	if s.dmCache != nil {
-		err = s.dmCache.Delete(key)
-		if err != nil {
+		if err = s.dmCache.Delete(key); err != nil {
 			return err
 		}
 	}
 	// del on 2nd level cache (if any)
 	if s.dbCache != nil {
-		err = s.dbCache.Delete(key)
-		if err != nil {
+		if err = s.dbCache.Delete(key); err != nil {
 			return err
 		}
 	}

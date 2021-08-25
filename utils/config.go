@@ -32,7 +32,10 @@ type GRPCConfig struct {
 }
 
 type DMCacheConfig struct {
-	Mode string `yaml:"mode,omitempty"`
+	Type        string `yaml:"type,omitempty"`
+	Mode        string `yaml:"mode,omitempty"`
+	HostAddress string `yaml:"host-address,omitempty"`
+	Password    string `yaml:"password,omitempty"`
 }
 
 type DBCacheConfig struct {
