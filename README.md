@@ -3,16 +3,22 @@
 Multi-level caching service in Go.
 
 Specifically: 
-* Distributed in-memory cache (L1)
-* DB-based cache (L2)
-* Long term historization on external volumes (L3)
+* [Distributed in-memory cache (L1)](cache/dm_cache_mapper.go)
+* [DB-based cache (L2)](cache/db_cache.go)
+* [Long term historization on persistent volumes (L3)](cache/historicizer.go)
   
 Uses the following libraries:
-* L1 - distributed in-memory cache:
+* L1 - distributed in-memory cache
   * [Olric](https://github.com/buraksezer/olric)
   * [Redis](https://github.com/go-redis/redis)
-* L2 - DB-based cache:
+* L2 - DB-based cache
   * [XORM](https://gitea.com/xorm/xorm) as ORM in Go targeting multiple DBs
+* L3 - Historization to local and remote path
+
+Historicizes to external volumes with any of the following formats:
+* [CSV](cache/csv_formatter.go)
+* [Parquet](cache/parquet_formatter.go)
+
 
 ## Example
 
