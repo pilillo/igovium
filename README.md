@@ -8,8 +8,11 @@ Specifically:
 * Long term historization on external volumes (L3)
   
 Uses the following libraries:
-* [Olric](https://github.com/buraksezer/olric) as distributed in-memory cache (L1)
-* [XORM](https://gitea.com/xorm/xorm) as ORM in Go targeting multiple DBs (L2)
+* L1 - distributed in-memory cache:
+  * [Olric](https://github.com/buraksezer/olric)
+  * [Redis](https://github.com/go-redis/redis)
+* L2 - DB-based cache:
+  * [XORM](https://gitea.com/xorm/xorm) as ORM in Go targeting multiple DBs
 
 ## Example
 
@@ -27,6 +30,7 @@ rest:
 grpc:
   port: 50051
 dm-cache:
+  type: olric
   mode: lan
 db-cache:
   driver-name: postgres
