@@ -5,8 +5,10 @@ option go_package = "github.com/pilillo/igovium/service/cachepb";
 
 message PutRequest {
 	string key = 1;
-    bytes value = 2;
-    string ttl = 3;
+	// rather than bytes, assume all as string and assume encoding binary stuff as base64 before the message is sent
+	string value = 2; 
+	string ttl1 = 3;
+	string ttl2 = 4;
 }
 
 message Empty {
@@ -24,7 +26,9 @@ message GetRequest {
 }
 
 message GetResponse {
-	bytes value = 1;
+	// rather than bytes, assume all as string and assume encoding binary stuff as base64 before the message is sent
+	// bytes value = 1;
+	string value = 1;
 }
 
 service CacheService {

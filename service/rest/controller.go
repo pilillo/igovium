@@ -16,9 +16,9 @@ const (
 
 func Get(c *gin.Context) {
 	key := c.Param(keyParam)
-	value, err := cacheService.Get(key)
-	if err != nil {
-		c.JSON(http.StatusNotFound, err)
+	value, response := cacheService.Get(key)
+	if response != nil {
+		c.JSON(response.Status, response)
 	} else {
 		c.JSON(http.StatusOK, value)
 	}
@@ -29,23 +29,15 @@ func Put(c *gin.Context) {
 	if err := c.BindJSON(&cacheEntry); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 	} else {
-		err := cacheService.Put(&cacheEntry)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
-		} else {
-			c.JSON(http.StatusOK, cacheEntry)
-		}
+		response := cacheService.Put(&cacheEntry)
+		c.JSON(response.Status, response)
 	}
 }
 
 func Delete(c *gin.Context) {
 	key := c.Param(keyParam)
-	err := cacheService.Delete(key)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-	} else {
-		c.JSON(http.StatusOK, nil)
-	}
+	response := cacheService.Delete(key)
+	c.JSON(response.Status, response)
 }
 
 var router = gin.Default()

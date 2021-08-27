@@ -3,6 +3,7 @@ package cache
 import (
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -37,7 +38,6 @@ func (s *cacheServiceType) Init(cfg *utils.Config) error {
 	}
 	var err error
 	if cfg.DMCacheConfig != nil {
-		//s.dmCache = NewOlricDMCache()
 		if s.dmCache, err = NewDMCacheFromConfig(cfg.DMCacheConfig); err != nil {
 			return fmt.Errorf("Error creating DMCache: %v", err)
 		}
@@ -57,78 +57,97 @@ func (s *cacheServiceType) Init(cfg *utils.Config) error {
 	return nil
 }
 
-func (s *cacheServiceType) Get(key string) (interface{}, error) {
-	var val interface{}
-	var err error
+func (s *cacheServiceType) Get(key string) (CachePayload, *utils.Response) {
 
 	// lookup 1st level cache (if any)
 	if s.dmCache != nil {
-		val, err = s.dmCache.Get(key)
-		if err != nil {
-			return nil, err
+		dmVal, dmErr := s.dmCache.Get(key)
+		if dmErr != nil {
+			// both redis and olric return generic errors if key not found so we can't distinguish between them
+			if strings.Contains(dmErr.Error(), "not found") {
+				return nil, utils.GetNotFoundError(key)
+			}
+			return nil, utils.GetInternalServerError(dmErr.Error())
 		}
-		if val != nil {
-			return val, nil
+		if dmVal != nil {
+			log.Printf("Cache hit for %s on DM Cache", key)
+			return dmVal, nil
 		}
 	}
 	// lookup 2nd level cache (if any)
 	if s.dbCache != nil {
-		val, err = s.dbCache.Get(key)
-		if err != nil {
-			return nil, err
+		dbVal, dbErr := s.dbCache.Get(key)
+		if dbErr != nil {
+			return nil, utils.GetInternalServerError(dbErr.Error())
 		}
-		if val != nil {
-			return val, nil
+		if dbVal != nil {
+			log.Printf("Cache hit for %s on DB Cache", key)
+			return dbVal, nil
 		}
 	}
-	log.Println("Cache miss for key:", key)
 	// not found
-	return nil, nil
+	return nil, utils.GetNotFoundError(key)
 }
 
-func (s *cacheServiceType) Put(entry *CacheEntry) error {
+func (s *cacheServiceType) Put(entry *CacheEntry) *utils.Response {
 	var err error
+	var ttl1, ttl2 time.Duration
 
-	duration, err := time.ParseDuration(entry.TTL)
-	if err != nil {
-		return err
+	// use same ttl if any is set
+	if entry.TTL != nil {
+		ttl, err := time.ParseDuration(*entry.TTL)
+		if err != nil {
+			return utils.GetInternalServerError(err.Error())
+		}
+		ttl1 = ttl
+		ttl2 = ttl
+	}
+
+	// use level specific ttl if set
+	if entry.TTL1 != nil {
+		ttl1, err = time.ParseDuration(*entry.TTL1)
+		if err != nil {
+			return utils.GetInternalServerError(err.Error())
+		}
+	}
+	// use level specific ttl if set
+	if entry.TTL2 != nil {
+		ttl2, err = time.ParseDuration(*entry.TTL2)
+		if err != nil {
+			return utils.GetInternalServerError(err.Error())
+		}
 	}
 
 	// put on 1st level cache (if any)
 	if s.dmCache != nil {
-		if err = s.dmCache.Put(entry.Key, entry.Value, duration); err != nil {
-			return err
+		if err = s.dmCache.Put(entry.Key, entry.Value, ttl1); err != nil {
+			return utils.GetInternalServerError(err.Error())
 		}
 	}
 
 	// put on 2nd level cache (if any)
 	if s.dbCache != nil {
-		var byteVal []byte
-		byteVal, err = utils.GetBytes(entry.Value)
-		cacheEntry := DBCacheEntry{
-			Key:   entry.Key,
-			Value: byteVal,
-			TTL:   duration,
+		if err = s.dbCache.Put(entry.Key, entry.Value, ttl2); err != nil {
+			return utils.GetInternalServerError(err.Error())
 		}
-		err = s.dbCache.Put(cacheEntry)
 	}
-
-	return nil
+	// return a successfull response
+	return utils.GetPutSuccessfullResponse(entry.Key)
 }
 
-func (s *cacheServiceType) Delete(key string) error {
+func (s *cacheServiceType) Delete(key string) *utils.Response {
 	var err error
 	// del on 1st level cache (if any)
 	if s.dmCache != nil {
 		if err = s.dmCache.Delete(key); err != nil {
-			return err
+			return utils.GetInternalServerError(err.Error())
 		}
 	}
 	// del on 2nd level cache (if any)
 	if s.dbCache != nil {
 		if err = s.dbCache.Delete(key); err != nil {
-			return err
+			return utils.GetInternalServerError(err.Error())
 		}
 	}
-	return nil
+	return utils.GetDeleteSuccessfullResponse(key)
 }

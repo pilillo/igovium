@@ -1,13 +1,12 @@
 package cache
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 
 	"sync"
 
+	"github.com/pilillo/igovium/utils"
 	"github.com/xitongsys/parquet-go/parquet"
 	"github.com/xitongsys/parquet-go/writer"
 )
@@ -55,14 +54,9 @@ func (f *parquetFormatter) Save(entries *[]DBCacheEntry, path string) error {
 	pw.CompressionType = parquet.CompressionCodec_SNAPPY
 
 	for _, cacheEntry := range *entries {
-
-		str, _ := json.Marshal(cacheEntry.Value)
-		log.Printf("%s", str)
-
 		if err = pw.Write(&parquetEntry{
-			Key:   cacheEntry.Key,
-			Value: string(cacheEntry.Value),
-			//Value:     fmt.Sprint(cacheEntry.Value),
+			Key:       cacheEntry.Key,
+			Value:     utils.ToBase64String(cacheEntry.Value),
 			CreatedAt: cacheEntry.CreatedAt,
 			UpdatedAt: cacheEntry.UpdatedAt,
 		}); err != nil {

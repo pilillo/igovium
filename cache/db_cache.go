@@ -29,7 +29,9 @@ type DBCacheEntry struct {
 	// as local unix timestamps
 	CreatedAt int64 `xorm:"created"`
 	UpdatedAt int64 `xorm:"updated"`
-	Value     []byte
+	//Value     []byte `xorm:"value"`
+	Value CachePayload `xorm:"value"`
+	//Value string `xorm:"value"`
 	// shall we need to look/index value, we can deserialize it and add a custom type
 	// see https://github.com/go-xorm/tests/blob/master/testCustomTypes.go
 	// as delta in nanoseconds
@@ -73,7 +75,7 @@ func (c *dbCacheType) Init(cfg *utils.DBCacheConfig) error {
 	return nil
 }
 
-func (c *dbCacheType) Get(key string) (*DBCacheEntry, error) {
+func (c *dbCacheType) Get(key string) (CachePayload, error) {
 	var has bool
 	cacheEntry := DBCacheEntry{Key: key}
 	has, err := c.engine.Get(&cacheEntry)
@@ -85,27 +87,29 @@ func (c *dbCacheType) Get(key string) (*DBCacheEntry, error) {
 		return nil, nil
 	}
 	cachehit.With(prometheus.Labels{"cache": "db"}).Inc()
-	return &cacheEntry, nil
+	return cacheEntry.Value, nil
 }
 
-func (c *dbCacheType) Put(entry DBCacheEntry) error {
+func (c *dbCacheType) Put(key string, value CachePayload, ttl time.Duration) error {
 	var err error
 	var has bool
 	// check if key already exists
-	lookupEntry := DBCacheEntry{Key: entry.Key}
+	lookupEntry := DBCacheEntry{Key: key}
 	has, err = c.engine.Exist(&lookupEntry)
 	if err != nil {
 		return err
 	}
-	// if key exists update
+	// entry to be put
+	entry := DBCacheEntry{Key: key, Value: value, TTL: ttl}
 	var affected int64
+	// if key exists update
 	if has {
 		// Update records, bean's non-empty fields are updated contents, condiBean' non-empty filds are conditions CAUTION!
 		affected, err = c.engine.Update(&entry, &lookupEntry)
-		log.Printf("Updated %d entry", affected)
+		log.Printf("Updated %d entry in DB Cache", affected)
 	} else {
 		affected, err = c.engine.Insert(&entry)
-		log.Printf("Inserted %d entry", affected)
+		log.Printf("Inserted %d entry in DB Cache", affected)
 	}
 
 	if err != nil {

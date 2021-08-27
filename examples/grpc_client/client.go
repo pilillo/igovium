@@ -17,17 +17,19 @@ func main() {
 
 	c := cachepb.NewCacheServiceClient(cc)
 
-	// put key
+	// put req
 	putReq := &cachepb.PutRequest{
 		Key:   "key",
-		Value: []byte("value"),
-		Ttl:   "1m",
+		Value: `{"mykey":"this-is-my-test-value"}`,
+		Ttl1:  "1m",
+		Ttl2:  "10m",
 	}
+	log.Printf("putting: k='%s', v='%s'", putReq.Key, putReq.Value)
 	putRes, err := c.Put(context.Background(), putReq)
 	if err != nil {
 		log.Fatalf("could not put: %v", err)
 	}
-	log.Printf("put response: %v", putRes)
+	log.Printf("put response: res='%v', err='%v'", putRes, err)
 
 	getReq := &cachepb.GetRequest{Key: "key"}
 	var getRes *cachepb.GetResponse

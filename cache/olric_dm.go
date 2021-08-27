@@ -80,21 +80,22 @@ func (c *olricDMCacheType) ScheduleStats() error {
 	return nil
 }
 
-func (c *olricDMCacheType) Get(key string) (interface{}, error) {
+func (c *olricDMCacheType) Get(key string) (CachePayload, error) {
 	val, err := c.cache.Get(key)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to call Get: %v", err)
+		return nil, err
 	}
 	if val != nil {
 		cachehit.With(prometheus.Labels{"cache": "dm"}).Inc()
 	}
 	cachemiss.With(prometheus.Labels{"cache": "dm"}).Inc()
-	return val, nil
+	// return cache payload result
+	return CachePayload(val.(string)), nil
 }
 
-func (c *olricDMCacheType) Put(key string, value interface{}, ttl time.Duration) error {
-	err := c.cache.PutEx(key, value, ttl)
-	//err := c.cache.Put(key, value)
+func (c *olricDMCacheType) Put(key string, value CachePayload, ttl time.Duration) error {
+	v := string(value)
+	err := c.cache.PutEx(key, v, ttl)
 	if err != nil {
 		return fmt.Errorf("Failed to Put on %s: %v", globalMap, err)
 	}

@@ -18,29 +18,32 @@ type grpcServer struct {
 
 func (*grpcServer) Put(ctx context.Context, req *cachepb.PutRequest) (*cachepb.Empty, error) {
 	log.Printf("RPC Put request for key %s", req.Key)
-	cacheEntry := &cache.CacheEntry{Key: req.Key, Value: req.Value, TTL: req.Ttl}
-	err := cacheService.Put(cacheEntry)
-	return &cachepb.Empty{}, err
+	payload := cache.CachePayload(req.Value)
+	cacheEntry := &cache.CacheEntry{Key: req.Key, Value: payload, TTL1: &req.Ttl1, TTL2: &req.Ttl2}
+	response := cacheService.Put(cacheEntry)
+	if response.Error != nil {
+		return nil, fmt.Errorf("%s", response.Message)
+	}
+	return &cachepb.Empty{}, nil
 }
 
 func (*grpcServer) Delete(ctx context.Context, req *cachepb.DeleteRequest) (*cachepb.Empty, error) {
 	log.Printf("RPC Delete request for key %s", req.Key)
-	err := cacheService.Delete(req.Key)
-	return &cachepb.Empty{}, err
+	response := cacheService.Delete(req.Key)
+	if response.Error != nil {
+		return nil, fmt.Errorf("%s", response.Message)
+	}
+	return &cachepb.Empty{}, nil
 }
 
 func (*grpcServer) Get(ctx context.Context, req *cachepb.GetRequest) (*cachepb.GetResponse, error) {
 	log.Printf("RPC Get request for key %s", req.Key)
-	val, err := cacheService.Get(req.Key)
-	if err != nil {
-		return nil, err
+	val, response := cacheService.Get(req.Key)
+	if response != nil && response.Error != nil {
+		return nil, fmt.Errorf("%s", response.Message)
 	}
-	byteVal, err := utils.GetBytes(val)
-	if err != nil {
-		return nil, err
-	}
-	response := &cachepb.GetResponse{Value: byteVal}
-	return response, nil
+	cachePbResponse := &cachepb.GetResponse{Value: string(val)}
+	return cachePbResponse, nil
 }
 
 var cacheService cache.CacheService

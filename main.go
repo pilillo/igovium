@@ -9,6 +9,7 @@ import (
 func main() {
 	done := make(chan bool, 1)
 	config := utils.LoadCfg()
+
 	// start rest endpoint (if conf defined)
 	if config.RESTConfig != nil {
 		go rest.StartEndpoint(config)

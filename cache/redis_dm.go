@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -31,21 +30,28 @@ func (c *redisDMCacheType) Init(cfg *utils.DMCacheConfig) error {
 	return nil
 }
 
-func (c *redisDMCacheType) Get(key string) (interface{}, error) {
+func (c *redisDMCacheType) Get(key string) (CachePayload, error) {
 	var ctx = context.Background()
 	value, err := c.client.Get(ctx, key).Result()
+
 	if err == redis.Nil {
-		return nil, fmt.Errorf("Key %s does not exist! :: %v", key, err)
+		return nil, nil //fmt.Errorf("Key %s does not exist! :: %v", key, err)
 	} else if err != nil {
 		return nil, err
 	} else {
-		return value, nil
+		return CachePayload(value), nil
 	}
 }
 
-func (c *redisDMCacheType) Put(key string, value interface{}, ttl time.Duration) error {
+func (c *redisDMCacheType) Put(key string, value CachePayload, ttl time.Duration) error {
 	var ctx = context.Background()
-	return c.client.Set(ctx, key, value, ttl).Err()
+	// redis expects string keys and []byte based values (aka strings)
+	// marshall whatever go structure we got to a json string, if any
+	bVal, err := value.Marshal()
+	if err != nil {
+		return err
+	}
+	return c.client.Set(ctx, key, bVal, ttl).Err()
 }
 
 func (c *redisDMCacheType) Delete(key string) error {

@@ -48,16 +48,34 @@ type DBCacheConfig struct {
 type HistoricizeConfig struct {
 	// Cron schedule to trigger the historization process for
 	Schedule string `yaml:"schedule,omitempty"`
-	// Endpoint of target distributed volume (e.g. s3)
-	Endpoint string `yaml:"endpoint,omitempty"`
-	// whether to use a secure connection (https)
-	UseSSL bool `yaml:"use-ssl,omitempty"`
-	// Target Bucket
-	Bucket string `yaml:"bucket,omitempty"`
 	// Output file format
 	Format string `yaml:"format,omitempty"`
 	// Path to temporary output file
 	TmpDir string `yaml:"tmp-dir,omitempty"`
+	// format to be used for organizing the output files in folders
+	DatePartitioner string `yaml:"date-partitioner,omitempty"`
+	// embedded remote volume configuration
+	// yaml behaves slightly differently than json unmarshalling
+	// https://github.com/go-yaml/yaml/issues/63
+	RemoteVolumeConfig `yaml:",inline"`
+}
+
+// RemoteVolumeConfig holds the configuration for remote volumes
+type RemoteVolumeConfig struct {
+	DeleteLocal bool      `yaml:"delete-local"`
+	S3Config    *S3Config `yaml:"s3,omitempty"`
+}
+
+type S3Config struct {
+	// Endpoint of target distributed volume (e.g. s3)
+	Endpoint string `yaml:"endpoint"`
+	// whether to use a secure connection (https)
+	UseSSL bool `yaml:"use-ssl"`
+	// Target Bucket
+	Bucket string `yaml:"bucket"`
+	// credentials for target bucket
+	AccessKeyVarName string `yaml:"access-key-varname"`
+	SecretKeyVarName string `yaml:"secret-key-varname"`
 }
 
 func LoadCfg() *Config {

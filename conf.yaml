@@ -2,9 +2,12 @@ rest:
   port: 9988
 grpc:
   port: 50051
-dm-cache:
-  type: olric
-  mode: lan
+#dm-cache:
+  #type: olric
+  #mode: lan
+  type: redis
+  host-address: 127.0.0.1:6379
+  password: ""
 db-cache:
   driver-name: postgres
   data-source-name: "host=localhost port=5432 user=user password=secret dbname=user sslmode=disable"
@@ -12,10 +15,14 @@ db-cache:
   historicize:
     # example: run every 1 min - see https://crontab.guru/#*_*_*_*_*
     schedule: "* * * * *"
-    endpoint: "play.min.io"
-    use-ssl: false
-    bucket: mytestbucket
     #format: csv
     format: parquet
-    partitioner: ""
     tmp-dir: "./"
+    date-partitioner: "year=2006/month=01/day=02"
+    delete-local: true
+    s3:
+      endpoint: "play.min.io"
+      use-ssl: false
+      bucket: mytestbucket
+      access-key-varname: ACCESSKEY
+      secret-key-varname: SECRETKEY

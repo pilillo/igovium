@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"sync"
+
+	"github.com/pilillo/igovium/utils"
 )
 
 var csvFormatterOnce sync.Once
@@ -44,7 +46,13 @@ func (f *csvFormatter) Save(entries *[]DBCacheEntry, path string) error {
 	}
 
 	for _, entry := range *entries {
-		record := []string{entry.Key, fmt.Sprintf("%v", entry.Value), fmt.Sprint(entry.CreatedAt), fmt.Sprint(entry.UpdatedAt)}
+		record := []string{
+			entry.Key,
+			utils.ToBase64String(entry.Value),
+			//entry.Value,
+			fmt.Sprint(entry.CreatedAt),
+			fmt.Sprint(entry.UpdatedAt),
+		}
 		err := writer.Write(record)
 		if err != nil {
 			return err

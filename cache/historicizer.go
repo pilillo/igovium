@@ -2,12 +2,14 @@ package cache
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"time"
 
 	"log"
 
 	"github.com/go-co-op/gocron"
+	"github.com/pilillo/igovium/putters"
 	"github.com/pilillo/igovium/utils"
 	"xorm.io/xorm"
 )
@@ -93,13 +95,27 @@ func HistoricizeDBCache(config *utils.DBCacheConfig) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		filename := fmt.Sprintf("%s.%s", fmt.Sprint(time.Now().UTC().Unix()), config.Historicize.Format)
-		err = formatManager.Save(&expired, path.Join(config.Historicize.TmpDir, filename))
+		// use date partitioner
+		now := time.Now().UTC()
+		partName := now.Format(config.Historicize.DatePartitioner)
+
+		// create a tmp folder partition
+		partitionPath := path.Join(config.Historicize.TmpDir, partName)
+		// create all local partition folders, unless they already exist
+		err = os.MkdirAll(partitionPath, os.ModePerm)
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("Expired entries written to temporary dir %s as %s", config.Historicize.TmpDir, filename)
-		// put local file to target remote volume
+		// name the file with the current timestamp (does not matter wrt the partition format)
+		filename := fmt.Sprintf("%s.%s", fmt.Sprint(now.Unix()), config.Historicize.Format)
+		tmpFilePath := path.Join(partitionPath, filename)
+		err = formatManager.Save(&expired, tmpFilePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("Expired entries written to temporary dir %s as %s", tmpFilePath, filename)
+		// async put local file to target remote volume if any remote volume is defined
+		go putters.Put(config.Historicize.TmpDir, partName, filename, &config.Historicize.RemoteVolumeConfig)
 	}
 }
 
