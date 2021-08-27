@@ -57,6 +57,7 @@ db-cache:
     format: parquet
     tmp-dir: "./"
     date-partitioner: "year=2006/month=01/day=02"
+    delete-local: true
     s3:
       endpoint: "play.min.io"
       use-ssl: false
@@ -66,6 +67,8 @@ db-cache:
 ```
 
 with the date partitioner format `year=2006/month=01/day=02` referring to the Golang's year, month, day format as also described [here](https://stackoverflow.com/questions/20234104/how-to-format-current-time-using-a-yyyymmddhhmmss-format).
+
+The `delete-local: bool` defines whether to remove local partitions upon file upload.
 
 ### Run the service
 
@@ -122,3 +125,4 @@ Here the actual variable containing the access key and secret key:
 export ACCESSKEY=Q3AM3UQ867SPQQA43P2F
 export SECRETKEY=zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
 ```
+
