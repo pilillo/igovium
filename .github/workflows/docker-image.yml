@@ -1,0 +1,29 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Docker Login
+      uses: docker/login-action@v1.8.0
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        logout: true
+    
+    - uses: olegtarasov/get-tag@v2.1
+      id: tagName
+        
+    - name: Build the Docker image
+      run: |
+        docker build --tag igovium:${GIT_TAG_NAME} -f Dockerfile .
+        docker push ${{ secrets.DOCKERHUB_USER }}/igovium:${GIT_TAG_NAME}
