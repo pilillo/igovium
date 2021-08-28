@@ -25,5 +25,5 @@ jobs:
         
     - name: Build the Docker image
       run: |
-        docker build --tag igovium:${GIT_TAG_NAME} -f Dockerfile .
+        docker build --tag ${{ secrets.DOCKERHUB_USER }}/igovium:${GIT_TAG_NAME} -f Dockerfile .
         docker push ${{ secrets.DOCKERHUB_USER }}/igovium:${GIT_TAG_NAME}
