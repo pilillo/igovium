@@ -1,4 +1,6 @@
-# IgoVIUM
+# [IgoVIUM](https://en.wikipedia.org/wiki/Iguvine_Tablets)
+
+![](igovium_logo.png)
 
 Multi-level caching service in Go.
 
