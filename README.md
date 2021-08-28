@@ -42,7 +42,7 @@ rest:
   port: 9988
 grpc:
   port: 50051
-#dm-cache:
+dm-cache:
   #type: olric
   #mode: lan
   type: redis
