@@ -28,10 +28,10 @@ ENV ARTIFACT=${ARTIFACT}
 # EXPOSE 3320 3322
 
 # set default vars
-ENV IGOVIUM_CONFIG=/conf
 ENV GIN_MODE=release
-
-COPY conf.yaml $IGOVIUM_CONFIG
+# do not forget to set the config and copy the conf file
+# ENV IGOVIUM_CONFIG=/conf.yaml
+# COPY conf.yaml /
 COPY --from=builder /build/${ARTIFACT} ./
 
 # Command to run when starting the container

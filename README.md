@@ -24,15 +24,22 @@ Historicizes to external volumes with any of the following formats:
 
 ## Example
 
-### Start a Postgres instance
+### Start individual services
 
+You can start a postgres DB with:
 ```
-docker run --rm --name some-postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=user -p 5432:5432 -d postgres
+docker run --rm --name some-postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=user -e POSTGRES_DB=cache -p 5432:5432 -d postgres
 ```
 
-### Start a Redis instance
+and similarly a Redis instance:
 ```
 docker run --rm --name some-redis -p 6379:6379 -d redis
+```
+
+However, you can directly use our `docker-compose.yaml` file:
+```
+docker-compose build
+docker-compose up -d
 ```
 
 ### Example configuration (REST+gRPC server)
