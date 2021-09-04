@@ -1,7 +1,7 @@
-ARG ARTIFACT=igovium
 FROM golang:1.16-alpine AS builder
 
-ARG ARTIFACT
+ARG ARTIFACT=igovium
+ARG MAIN_PATH=main.go
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
@@ -15,7 +15,7 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
-RUN go build -o ${ARTIFACT} .
+RUN go build -o ${ARTIFACT} ${MAIN_PATH}
 
 # ---->
 

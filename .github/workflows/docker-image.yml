@@ -25,5 +25,9 @@ jobs:
         
     - name: Build the Docker image
       run: |
+        # main igovium image
         docker build --tag ${{ secrets.DOCKERHUB_USER }}/igovium:${GIT_TAG_NAME} -f Dockerfile .
         docker push ${{ secrets.DOCKERHUB_USER }}/igovium:${GIT_TAG_NAME}
+        # historicizer image
+        docker build --build-arg ARTIFACT=historicizer --build-arg MAIN_PATH="historicizer/main.go" --tag ${{ secrets.DOCKERHUB_USER }}/igovium-historicizer:${GIT_TAG_NAME} -f Dockerfile .
+        docker push ${{ secrets.DOCKERHUB_USER }}/igovium-historicizer:${GIT_TAG_NAME}
