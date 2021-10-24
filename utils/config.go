@@ -32,10 +32,11 @@ type GRPCConfig struct {
 }
 
 type DMCacheConfig struct {
-	Type        string `yaml:"type,omitempty"`
-	Mode        string `yaml:"mode,omitempty"`
-	HostAddress string `yaml:"host-address,omitempty"`
-	Password    string `yaml:"password,omitempty"`
+	Type         string  `yaml:"type,omitempty"`
+	Mode         string  `yaml:"mode,omitempty"`
+	HostAddress  string  `yaml:"host-address,omitempty"`
+	Password     string  `yaml:"password,omitempty"`
+	K8sDiscovery *string `yaml:"k8-discover,omitempty"`
 }
 
 type DBCacheConfig struct {

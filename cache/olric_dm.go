@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/buraksezer/olric"
+	"github.com/buraksezer/olric-cloud-plugin/lib"
 	"github.com/buraksezer/olric/config"
 	"github.com/go-co-op/gocron"
 	"github.com/pilillo/igovium/utils"
@@ -31,6 +32,14 @@ func NewOlricDMCache() DMCache {
 func (c *olricDMCacheType) Init(cfg *utils.DMCacheConfig) error {
 	var err error
 	conf := config.New(cfg.Mode)
+
+	if cfg.K8sDiscovery != nil {
+		conf.ServiceDiscovery = map[string]interface{}{
+			"plugin":   &lib.CloudDiscovery{},
+			"provider": "k8s",
+			"args":     cfg.K8sDiscovery,
+		}
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	conf.Started = func() {

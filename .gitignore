@@ -2,3 +2,5 @@
 igovium
 *.parquet
 *.ipynb
+
+.DS_Store

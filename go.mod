@@ -6,8 +6,8 @@ require (
 	github.com/alexflint/go-arg v1.4.2
 	github.com/armon/go-metrics v0.3.9 // indirect
 	github.com/buraksezer/consistent v0.9.0 // indirect
-	github.com/buraksezer/olric v0.3.11
-	github.com/cheggaaa/pb v1.0.29 // indirect
+	github.com/buraksezer/olric v0.4.0
+	github.com/buraksezer/olric-cloud-plugin v0.3.0-beta.4
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-co-op/gocron v1.6.2
 	github.com/go-redis/redis/v8 v8.11.3
@@ -22,9 +22,9 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.2
 	github.com/miekg/dns v1.1.43 // indirect
-	github.com/minio/minio-go/v7 v7.0.13 // indirect
+	github.com/minio/minio-go/v7 v7.0.13
 	github.com/prometheus/client_golang v1.11.0
-	github.com/vmihailenco/msgpack/v5 v5.3.4 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.4
 	github.com/xitongsys/parquet-go v1.6.0
 	github.com/xitongsys/parquet-go-source v0.0.0-20201108113611-f372b7d813be // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect

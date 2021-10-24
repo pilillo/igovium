@@ -20,7 +20,8 @@ services:
       dockerfile: Dockerfile
     #image: igovium:latest
     ports:
-      - 8085:8085
+      - 9988:9988
+      - 50051:50051
     volumes:
       - ./compose-conf.yaml:/compose-conf.yaml
     environment:
