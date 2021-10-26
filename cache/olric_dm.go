@@ -37,6 +37,7 @@ func (c *olricDMCacheType) Init(cfg *utils.DMCacheConfig) error {
 		conf.ServiceDiscovery = map[string]interface{}{
 			"plugin":   &lib.CloudDiscovery{},
 			"provider": "k8s",
+			"path":     "/usr/lib/olric-cloud-plugin.so",
 			"args":     cfg.K8sDiscovery,
 		}
 	}
