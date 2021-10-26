@@ -17,6 +17,7 @@ RUN go mod download
 
 COPY . .
 RUN go build -o ${ARTIFACT} ${MAIN_PATH}
+# -ldflags="-s -w"
 
 # ---->
 FROM alpine:3.12.4

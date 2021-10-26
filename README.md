@@ -135,3 +135,170 @@ export ACCESSKEY=Q3AM3UQ867SPQQA43P2F
 export SECRETKEY=zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
 ```
 
+## Running on K8s
+
+Running igovium on K8s is as easy as defining a deployment. 
+
+### DM-based cache
+
+#### Olric-based DM cache
+
+To run on Kubernetes, [olric-cloud-plugin](https://github.com/buraksezer/olric-cloud-plugin) and [hashicorp/go-discover](https://github.com/hashicorp/go-discover) are used.
+
+A label of kind `run: olricd` is used to mark pods running olric-based processes. This can be configured directly in the dm-cache struct with the field value `k8s-discovery: 'label_selector="run = olricd"'`.
+Specifically, to be able to discover pods running the service, a new role is created:
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: olricd
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+```
+
+A new service account is then created and binded to the role:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: igovium
+```
+
+```yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: olricd
+subjects:
+- kind: ServiceAccount
+  name: igovium
+roleRef:
+  kind: Role
+  name: olricd
+  apiGroup: rbac.authorization.k8s.io
+```
+
+In addition, a service is exposed for both `olricd` and `memberlist`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: memberlist
+spec:
+  selector:
+    run: olricd
+  clusterIP: None
+  ports:
+  - port: 3322
+    protocol: TCP
+    targetPort: 3322
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olricd
+spec:
+  selector:
+    run: olricd
+  ports:
+  - port: 3320
+    protocol: TCP
+    targetPort: 3320
+```
+
+### DB-based cache
+
+To quickly setup a postgres the [`bitnami/postgres`](https://bitnami.com/stack/postgresql/helm) Helm chart is used.
+
+```bash
+helm install db \
+--set postgresqlUsername=user,postgresqlPassword=secret,postgresqlDatabase=cache \
+bitnami/postgresql
+```
+
+Default values are specified [here](https://github.com/bitnami/charts/blob/master/bitnami/postgresql/values.yaml).
+As visible, unless overridden, the default credentials are `postgres` and `secret` but we are changing them to those previously used in the `docker-compose.yaml` file.
+
+### Deploying the Igovium service
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: igovium
+    service: olricd
+  name: igovium
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: igovium
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: igovium
+        run: olricd
+    spec:
+      serviceAccountName: igovium
+      containers:
+        - image: pilillo/igovium:v0.2
+          name: igovium
+          volumeMounts:
+            - mountPath: /confs
+              name: igovium-conf-volume
+          ports:
+            - name: olricd
+              containerPort: 3320
+            - name: memberlist
+              containerPort: 3322
+            - name: rest
+              containerPort: 9988
+            - name: grpc
+              containerPort: 50051
+          env:
+            - name: IGOVIUM_CONFIG
+              value: /confs/igovium-conf.yaml
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
+      volumes:
+        - name: igovium-conf-volume
+          configMap:
+            defaultMode: 420
+            name: igovium-conf
+status: {}
+```
+
+We can then expose a service for igovium as follows:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: igovium
+  name: igovium
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9988
+      targetPort: 9988
+      protocol: TCP
+      name: rest
+    - port: 50051
+      targetPort: 50051
+      protocol: TCP
+      name: grpc
+  selector:
+    app: igovium
+```
+
+The full deployment discussed in this example is available [here](deployment/olric/igovium-olric.yml).

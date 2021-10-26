@@ -34,11 +34,11 @@ func (c *olricDMCacheType) Init(cfg *utils.DMCacheConfig) error {
 	conf := config.New(cfg.Mode)
 
 	if cfg.K8sDiscovery != nil {
+		log.Printf("[INFO] Enabling K8s discovery with %s", *cfg.K8sDiscovery)
 		conf.ServiceDiscovery = map[string]interface{}{
 			"plugin":   &lib.CloudDiscovery{},
 			"provider": "k8s",
-			"path":     "/usr/lib/olric-cloud-plugin.so",
-			"args":     cfg.K8sDiscovery,
+			"args":     *cfg.K8sDiscovery,
 		}
 	}
 

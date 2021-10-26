@@ -36,7 +36,7 @@ type DMCacheConfig struct {
 	Mode         string  `yaml:"mode,omitempty"`
 	HostAddress  string  `yaml:"host-address,omitempty"`
 	Password     string  `yaml:"password,omitempty"`
-	K8sDiscovery *string `yaml:"k8-discover,omitempty"`
+	K8sDiscovery *string `yaml:"k8s-discovery,omitempty"`
 }
 
 type DBCacheConfig struct {

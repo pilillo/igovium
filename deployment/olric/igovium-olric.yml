@@ -1,0 +1,154 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: igovium
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: olricd
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: olricd
+subjects:
+- kind: ServiceAccount
+  name: igovium
+roleRef:
+  kind: Role
+  name: olricd
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+data:
+  igovium-conf.yaml: |-
+    rest:
+      port: 9988
+    grpc:
+      port: 50051
+    dm-cache:
+      type: olric
+      mode: lan
+      k8s-discovery: 'label_selector="run = olricd"'
+    db-cache:
+      driver-name: postgres
+      data-source-name: "host=db-postgresql port=5432 user=user password=secret dbname=cache sslmode=disable"
+      local-cache-size: 0
+      #historicize:
+      #  # example: run every 1 min - see https://crontab.guru/#*_*_*_*_*
+      #  schedule: "* * * * *"
+      #  #format: csv
+      #  format: parquet
+      #  tmp-dir: "./"
+      #  date-partitioner: "year=2006/month=01/day=02"
+      #  delete-local: true
+      #  s3:
+      #    endpoint: "play.min.io"
+      #    use-ssl: false
+      #    bucket: mytestbucket
+      #    access-key-varname: ACCESSKEY
+      #    secret-key-varname: SECRETKEY
+kind: ConfigMap
+metadata:
+  name: igovium-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: igovium
+    service: olricd
+  name: igovium
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: igovium
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: igovium
+        run: olricd
+    spec:
+      serviceAccountName: igovium
+      containers:
+        - image: pilillo/igovium:v0.2
+          imagePullPolicy: Never
+          name: igovium
+          volumeMounts:
+            - mountPath: /confs
+              name: igovium-conf-volume
+          ports:
+            - name: olricd
+              containerPort: 3320
+            - name: memberlist
+              containerPort: 3322
+            - name: rest
+              containerPort: 9988
+            - name: grpc
+              containerPort: 50051
+          env:
+            - name: IGOVIUM_CONFIG
+              value: /confs/igovium-conf.yaml
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
+      volumes:
+        - name: igovium-conf-volume
+          configMap:
+            defaultMode: 420
+            name: igovium-conf
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: igovium
+  name: igovium
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9988
+      targetPort: 9988
+      protocol: TCP
+      name: rest
+    - port: 50051
+      targetPort: 50051
+      protocol: TCP
+      name: grpc
+  selector:
+    app: igovium
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memberlist
+spec:
+  selector:
+    run: olricd
+  clusterIP: None
+  ports:
+  - port: 3322
+    protocol: TCP
+    targetPort: 3322
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olricd
+spec:
+  selector:
+    run: olricd
+  ports:
+  - port: 3320
+    protocol: TCP
+    targetPort: 3320
