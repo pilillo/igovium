@@ -106,6 +106,18 @@ GET on `http://localhost:9988/mykey`:
 }
 ```
 
+Since there is only one specified TTL, the same value is used for all levels.
+If necessary, you can also set level-specific TTLs:
+
+```json
+{
+    "key":"mykey",
+    "value": {"myvalue":1, "myotherval":100},
+    "ttl-l1" : "300s",
+    "ttl-l2" : "1h"
+}
+```
+
 ### Run the grpc client example
 Please find an example gRPC client [here](examples/grpc_client/client.go).
 
