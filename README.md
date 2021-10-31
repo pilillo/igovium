@@ -11,8 +11,8 @@ Specifically:
   
 Uses the following libraries:
 * L1 - distributed in-memory cache
-  * [Olric](https://github.com/buraksezer/olric)
-  * [Redis](https://github.com/go-redis/redis)
+  * embedded [Olric](https://github.com/buraksezer/olric)
+  * external [Redis](https://github.com/go-redis/redis)
 * L2 - DB-based cache
   * [XORM](https://gitea.com/xorm/xorm) as ORM in Go targeting multiple DBs
 * L3 - Historization to local and remote path
@@ -21,6 +21,7 @@ Historicizes to external volumes with any of the following formats:
 * [CSV](cache/csv_formatter.go)
 * [Parquet](cache/parquet_formatter.go)
 
+Ideally, support for formats such as delta-lake will be added in future to avoid staging.
 
 ## Example
 
@@ -314,3 +315,5 @@ spec:
 ```
 
 The full deployment discussed in this example is available [here](deployment/olric/igovium-olric.yml).
+
+Enjoy!
